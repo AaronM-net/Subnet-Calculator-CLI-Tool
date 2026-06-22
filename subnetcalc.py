@@ -37,6 +37,30 @@ def calculate_subnet(cidr_input):
         "total_addresses": network.num_addresses,
     }
 
+def get_binary_breakdown(cidr_input):
+    """Generate binary representation showing network vs host bits."""
+    network = ipaddress.ip_network(cidr_input, strict=False)
+    prefix_len = network.prefixlen
+
+    addr_int = int(network.network_address)
+
+    # Converts the IP address integer into a 32-character binary string (padded with leading zeros)
+    binary_str = format(addr_int, "032b")
+
+    # Slices that 32-bit string into four 8-bit octets for display
+    octets = [binary_str[i:i + 8] for i in range(0, 32, 8)]
+
+    return {
+        "binary_octets": octets,
+        "prefix_length": prefix_len,
+
+        # Split the bits into network portion based on the prefix length
+        "network_bits": binary_str[:prefix_len],
+
+        # # Split the bits into host portion based on the prefix length
+        "host_bits": binary_str[prefix_len:],
+    }
+
 # Set-up a CLI entry point
 def main():
     # Creates a parser with a description that appears in --help output argument below
