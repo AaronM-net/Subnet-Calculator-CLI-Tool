@@ -1,8 +1,22 @@
-import ipaddress
+#!/usr/bin/env python3
+"""Subnet Calculator CLI Tool."""
 
-# Quick test to confirm the ipaddress module works
-network = ipaddress.ip_network('192.168.1.0/24', strict=False)
-print(f"Network: {network.network_address}")
-print(f"Broadcast: {network.broadcast_address}")
-print(f"Netmask: {network.netmask}")
-print(f"Hostmask: {network.hostmask}")
+import argparse
+# Set-up a CLI entry point
+
+def main():
+    # Creates a parser with a description that appears in --help output argument below
+    parser = argparse.ArgumentParser(
+        description="Subnet Calculator - Compute network details from IP/CIDR notation"
+    )
+    # Defines a required positional argument
+    parser.add_argument(
+        "network",
+        help="IP address in CIDR notation (e.g., 192.168.1.0/24)"
+    )
+    args = parser.parse_args()
+    print(args.network)
+
+# Ensures main() only runs if the file is executed directly
+if __name__ == "__main__":
+    main()
