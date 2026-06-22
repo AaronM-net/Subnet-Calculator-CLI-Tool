@@ -87,6 +87,56 @@ def get_binary_breakdown(cidr_input):
         "host_bits": binary_str[prefix_len:],
     }
 
+# Display Functions
+def display_results(results, binary, vlsm_table, colors):
+    """The function prints a header section with all subnet details (network address, broadcast, masks, host range) using fixed-width label formatting."""
+    c = colors
+
+    print(f"\n{c['header']}{'=' * 60}")
+    print(f"  SUBNET CALCULATION RESULTS")
+    print(f"{'=' * 60}{c['reset']}\n")
+
+    fields = [
+        ("Network Address:", results["network_address"]),
+        ("Broadcast Address:", results["broadcast_address"]),
+        ("Subnet Mask:", results["subnet_mask"]),
+        ("Wildcard Mask:", results["wildcard_mask"]),
+        ("Prefix Length:", f"/{results['prefix_length']}"),
+        ("Usable Host Range:", f"{results['first_host']} - {results['last_host']}"),
+        ("Usable Hosts:", str(results["usable_hosts"])),
+        ("Total Addresses:", str(results["total_addresses"])),
+    ]
+
+    for label, value in fields:
+        print(f"  {c['label']}{label:<20}{c['reset']}{c['value']}{value}{c['reset']}")
+
+    # The binary breakdown iterates bit by bit through all 32 bits. Each bit gets colored green (network bit) or red (host bit) based on whether its position is before or after the prefix length.
+    print(f"\n{c['header']}{'\u2500' * 60}")
+    print(f"  BINARY BREAKDOWN")
+    print(f"{'\u2500' * 60}{c['reset']}\n")
+
+    prefix_len = binary["prefix_length"]
+    display_line = "  "
+    bit_index = 0
+
+    for i, octet in enumerate(binary["binary_octets"]):
+        for bit in octet:
+            if bit_index < prefix_len:
+                display_line += f"{c['network_bits']}{bit}{c['reset']}"
+            else:
+                display_line += f"{c['host_bits']}{bit}{c['reset']}"
+            bit_index += 1
+        if i < 3:
+            display_line += "."
+
+    print(display_line)
+
+    # Tells the reader how many bits belong to each category.
+    print(f"  {c['network_bits']}N = Network bits ({prefix_len}){c['reset']}  "
+          f"{c['host_bits']}H = Host bits ({32 - prefix_len}){c['reset']}")
+
+    print()
+
 # Set-up a CLI entry point
 def main():
     # Creates a parser with a description that appears in --help output argument below
