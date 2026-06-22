@@ -6,6 +6,32 @@ import ipaddress
 import os
 import sys
 
+# Color Support
+
+# Maps friendly names to ANSI escape sequences
+COLORS = {
+    "header": "\033[1;36m",
+    "label": "\033[1;33m",
+    "value": "\033[0;37m",
+    "network_bits": "\033[1;32m",
+    "host_bits": "\033[1;31m",
+    "reset": "\033[0m",
+}
+
+# Allows display code to work with or without color
+NO_COLORS = {key: "" for key in COLORS}
+
+# Checks the following: an explicit --no-color flag, the NO_COLOR environment variable (a community convention), and whether stdout is a terminal (not a pipe)
+def should_use_color(no_color_flag):
+    """Determine if color output should be used."""
+    if no_color_flag:
+        return False
+    if os.environ.get("NO_COLOR") is not None:
+        return False
+    if not sys.stdout.isatty():
+        return False
+    return True
+
 # Subnet Calculation
 def calculate_subnet(cidr_input):
     """Calculate all subnet details from a CIDR string."""
