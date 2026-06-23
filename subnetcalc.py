@@ -87,8 +87,7 @@ def get_binary_breakdown(cidr_input):
         "host_bits": binary_str[prefix_len:],
     }
 
-def get_vlsm_table(cidr_input):
-    """Generate VLSM subdivision table showing possible subnet splits."""
+def get_vlsm_table(cidr_input): 
     # Iterates through progressively smaller subnet sizes, starting one prefix bit longer than the input network
     network = ipaddress.ip_network(cidr_input, strict=False)
     prefix_len = network.prefixlen
@@ -166,6 +165,22 @@ def display_results(results, binary, vlsm_table, colors):
     print(f"  {c['network_bits']}N = Network bits ({prefix_len}){c['reset']}  "
           f"{c['host_bits']}H = Host bits ({32 - prefix_len}){c['reset']}")
 
+    #  Skips the section entirely when there are no valid splits (e.g., a /31 or /32 network)
+    if vlsm_table:
+        print(f"\n{c['header']}{'─' * 60}")
+        print(f"  VLSM SUBDIVISION TABLE")
+        print(f"{'─' * 60}{c['reset']}\n")
+
+        # Keeps rows neat regardless of how many digits the values have by formatting specifiers to left-align each column to a fixed width.
+        print(f"  {c['label']}{'Prefix':<10}{'Subnets':<12}{'Hosts/Subnet':<16}{'Mask'}{c['reset']}")
+        print(f"  {'─' * 54}")
+
+        # Colors follow the same scheme as the rest of the output: header color for the section title, label color for column headers, and value color for data rows
+        for entry in vlsm_table:
+            print(f"  {c['value']}{entry['prefix']:<10}"
+                  f"{entry['num_subnets']:<12}"
+                  f"{entry['hosts_per_subnet']:<16}"
+                  f"{entry['subnet_mask']}{c['reset']}")
     print()
 
 # CLI
