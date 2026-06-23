@@ -87,6 +87,37 @@ def get_binary_breakdown(cidr_input):
         "host_bits": binary_str[prefix_len:],
     }
 
+def get_vlsm_table(cidr_input):
+    """Generate VLSM subdivision table showing possible subnet splits."""
+    # Iterates through progressively smaller subnet sizes, starting one prefix bit longer than the input network
+    network = ipaddress.ip_network(cidr_input, strict=False)
+    prefix_len = network.prefixlen
+
+    subnets = []
+    # Caps how far down the table goes as you never exceed /30 (which gives 2 usable hosts)
+    max_prefix = min(prefix_len + 7, 31)
+
+    for new_prefix in range(prefix_len + 1, max_prefix):
+
+        # Calculates usable hosts while the (-2) accounts for the network address and broadcast address that every subnet reserves
+        hosts_per_subnet = 2 ** (32 - new_prefix) - 2
+
+        if hosts_per_subnet < 2:
+            break
+
+        # Tells you how many subnets of that size fit in the original network where each extra prefix bit doubles the count
+        num_subnets = 2 ** (new_prefix - prefix_len)
+
+        # The loop breaks early if hosts_per_subnet < 2, since a subnet with fewer than 2 usable hosts has no practical value for host assignment
+        subnets.append({
+            "prefix": f"/{new_prefix}",
+            "num_subnets": num_subnets,
+            "hosts_per_subnet": hosts_per_subnet,
+            "subnet_mask": str(ipaddress.IPv4Network(f"0.0.0.0/{new_prefix}").netmask),
+        })
+
+    return subnets
+
 # Display Functions
 def display_results(results, binary, vlsm_table, colors):
     """The function prints a header section with all subnet details (network address, broadcast, masks, host range) using fixed-width label formatting."""
