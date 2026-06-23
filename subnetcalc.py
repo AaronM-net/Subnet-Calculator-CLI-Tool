@@ -137,19 +137,39 @@ def display_results(results, binary, vlsm_table, colors):
 
     print()
 
-# Set-up a CLI entry point
+# CLI
 def main():
-    # Creates a parser with a description that appears in --help output argument below
     parser = argparse.ArgumentParser(
         description="Subnet Calculator - Compute network details from IP/CIDR notation"
     )
-    # Defines a required positional argument
     parser.add_argument(
         "network",
         help="IP address in CIDR notation (e.g., 192.168.1.0/24)"
     )
+
+    # This flag gives users an explicit way to disable color output
+    parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable colored output"
+    )
+
     args = parser.parse_args()
-    print(args.network)
+
+    # Decides whether to use the COLORS or NO_COLORS dictionary.
+    use_color = should_use_color(args.no_color)
+    colors = COLORS if use_color else NO_COLORS
+
+    # This block catches invalid inputs (like not_an_ip) and prints a helpful error to stderr instead of crashing with a traceba
+    try:
+        results = calculate_subnet(args.network)
+        binary = get_binary_breakdown(args.network)
+    except ValueError as e:
+        print(f"Error: Invalid network input - {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Passes an empty list for the VLSM table parameter
+    display_results(results, binary, [], colors)
 
 # Ensures main() only runs if the file is executed directly
 if __name__ == "__main__":
