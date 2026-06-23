@@ -3,6 +3,7 @@
 
 import argparse
 import ipaddress
+import json
 import os
 import sys
 
@@ -183,6 +184,27 @@ def display_results(results, binary, vlsm_table, colors):
                   f"{entry['subnet_mask']}{c['reset']}")
     print()
 
+# JSON export
+def export_json(results, binary, vlsm_table, filepath):
+    """Export results to a JSON file."""
+    output = {
+        "subnet_info": results,
+        "binary_breakdown": {
+            "octets": binary["binary_octets"],
+            "prefix_length": binary["prefix_length"],
+            "network_bits": binary["network_bits"],
+            "host_bits": binary["host_bits"],
+        },
+        "vlsm_table": vlsm_table,
+    }
+
+    with open(filepath, "w") as f:
+        # Writes the dictionary to the file as nicely-formatted JSON with 2-space indentation
+        json.dump(output, f, indent=2)
+
+    # Prints confirmation message to stderr so it does not interfere with piped stdout output
+    print(f"Results exported to {filepath}", file=sys.stderr)
+
 # CLI
 def main():
     parser = argparse.ArgumentParser(
@@ -193,6 +215,12 @@ def main():
         help="IP address in CIDR notation (e.g., 192.168.1.0/24)"
     )
 
+    parser.add_argument(
+        "--export",
+        metavar="FILE",
+        help="Export results to a JSON file"
+    )
+    
     # This flag gives users an explicit way to disable color output
     parser.add_argument(
         "--no-color",
@@ -206,16 +234,22 @@ def main():
     use_color = should_use_color(args.no_color)
     colors = COLORS if use_color else NO_COLORS
 
-    # This block catches invalid inputs (like not_an_ip) and prints a helpful error to stderr instead of crashing with a traceba
+    # This block catches invalid inputs (like not_an_ip) and prints a helpful error to stderr instead of crashing with a traceback
     try:
         results = calculate_subnet(args.network)
         binary = get_binary_breakdown(args.network)
+
+        # Computes the VLSM table and swaps the empty list placeholder for the real data
+        vlsm_table = get_vlsm_table(args.network)
     except ValueError as e:
         print(f"Error: Invalid network input - {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Passes an empty list for the VLSM table parameter
-    display_results(results, binary, [], colors)
+    display_results(results, binary, vlsm_table, colors)
+
+    # Export if requested
+    if args.export:
+        export_json(results, binary, vlsm_table, args.export)
 
 # Ensures main() only runs if the file is executed directly
 if __name__ == "__main__":

@@ -1,0 +1,62 @@
+{
+  "subnet_info": {
+    "network_address": "192.168.1.0",
+    "broadcast_address": "192.168.1.255",
+    "subnet_mask": "255.255.255.0",
+    "wildcard_mask": "0.0.0.255",
+    "prefix_length": 24,
+    "first_host": "192.168.1.1",
+    "last_host": "192.168.1.254",
+    "usable_hosts": 254,
+    "total_addresses": 256
+  },
+  "binary_breakdown": {
+    "octets": [
+      "11000000",
+      "10101000",
+      "00000001",
+      "00000000"
+    ],
+    "prefix_length": 24,
+    "network_bits": "110000001010100000000001",
+    "host_bits": "00000000"
+  },
+  "vlsm_table": [
+    {
+      "prefix": "/25",
+      "num_subnets": 2,
+      "hosts_per_subnet": 126,
+      "subnet_mask": "255.255.255.128"
+    },
+    {
+      "prefix": "/26",
+      "num_subnets": 4,
+      "hosts_per_subnet": 62,
+      "subnet_mask": "255.255.255.192"
+    },
+    {
+      "prefix": "/27",
+      "num_subnets": 8,
+      "hosts_per_subnet": 30,
+      "subnet_mask": "255.255.255.224"
+    },
+    {
+      "prefix": "/28",
+      "num_subnets": 16,
+      "hosts_per_subnet": 14,
+      "subnet_mask": "255.255.255.240"
+    },
+    {
+      "prefix": "/29",
+      "num_subnets": 32,
+      "hosts_per_subnet": 6,
+      "subnet_mask": "255.255.255.248"
+    },
+    {
+      "prefix": "/30",
+      "num_subnets": 64,
+      "hosts_per_subnet": 2,
+      "subnet_mask": "255.255.255.252"
+    }
+  ]
+}
